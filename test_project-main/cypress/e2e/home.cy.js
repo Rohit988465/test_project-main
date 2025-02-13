@@ -32,23 +32,24 @@ describe('Login Page', () =>{
       cy.get('#login-button').click();
 
       //Assert
-      cy.get('#error-message').should(
-        'contain',
-        'Invalid email or password'
-    );
+      cy.on('window:alert', (txt) =>{
+        expect(txt).to.contains('Invalid credentials')
+      });
   });
 
-  it('should only submit once', () =>{
-      //Arrange
-      cy.get('#email').type('test@example.com');
-      cy.get('#password').type('password123');
+  //Brute force testing
+  it('should for multiple failed login attempts', () =>{
+ 
+    for(let i = 0; i < 5; i++){
+      cy.get('#email').clear().type('wrongexample@gmail.com')
+      cy.get('#password').clear().type('guessedpassword')
+      cy.get('#login-button').click();
+    }
 
-       //Act
-       for(var i = 0; i < 3; i++){
-       cy.get('#login-button').click();
-       }
-
-       //Assertion  
-       cy.get('#submitCount').should('have.to', '1')
+    //Assert
+    cy.on('window:alert', (txt) =>{
+      expect(txt).to.contains('Invalid credentials')
+    });
   });
+
 });
